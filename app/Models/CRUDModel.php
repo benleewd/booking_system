@@ -4,11 +4,17 @@ class CRUDModel
 {
 	protected $db;
 	protected $builder;
+	protected $success;
 
-	public function __construct($table)
+	public function __construct()
+	{
+		
+	}
+
+	public function init($table)
 	{
 		$this->db = db_connect();
-		$this->builder = $db->table($table);
+		$this->builder = $this->db->table($table);
 	}
 
 	public function create($data)
@@ -16,12 +22,12 @@ class CRUDModel
 		$result = $this->builder->insert($data);
 		$this->builder->resetQuery();
 		
-		return $result;
+		return json_encode($result);
 	}
 
 	public function read($id=none)
 	{
-		if ($id){
+		if ($id != none){
 			$this->builder->where('id', $id);
 		}
 		$result = $this->builder->get()->getResultArray();
@@ -35,7 +41,7 @@ class CRUDModel
 		$result = $this->builder->replace($data);
 		$this->builder->resetQuery();
 
-		return $result;
+		return json_encode($result);
 
 	}
 
@@ -44,7 +50,7 @@ class CRUDModel
 		$result = $this->builder->where('id', $data)->delete();
 		$this->builder->resetQuery();
 
-		return $result;
+		return json_encode($result);
 	}
 	//--------------------------------------------------------------------
 

@@ -34,7 +34,7 @@ class Users extends BaseController
 								->first();
 
 				$this->setUserMethod($user);
-				return redirect()->to('dashboard');
+				return redirect()->to('schedule');
 
 			}
 		}

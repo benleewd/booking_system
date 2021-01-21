@@ -2,7 +2,9 @@
     <div class="row">
       <div class="col-12 text-center">
         <input type="hidden" id="username" value="<?= session()->get('username') ?>">
+        <input type="hidden" id="id" value="<?= session()->get('id') ?>">
         <h1>Hello, <?= session()->get('username')?></h1>
+
       </div>
     </div>
     <hr>
@@ -11,6 +13,8 @@
     </div>
 </div>
 <script>
+  var userid = document.getElementById('id').value;
+  var username = document.getElementById('username').value;
   var sche = new DayPilot.Scheduler("sche", {
     cellWidthSpec: "Fixed",
     cellWidth: 30,
@@ -28,38 +32,112 @@
     dynamicEventRendering: "Disabled",
     onTimeRangeSelected: function (args) {
       var sche = this;
-      DayPilot.Modal.prompt("Create a new event:", "Event 1").then(function(modal) {
+      DayPilot.Modal.confirm("Create a new event:").then(function(modal) {
         sche.clearSelection();
+        console.log(args.resource);
+        console.log(args.start.toString());
+        console.log(args.end.toString());
+        console.log(userid);
+        var fields = {
+            start: args.start.toString(),
+            end: args.end.toString(),
+            resource: parseInt(args.resource),
+            id: parseInt(userid)
+          };
         if (modal.canceled) { return; }
-        sche.events.add({
-          start: args.start,
-          end: args.end,
-          id: DayPilot.guid(),
-          resource: args.resource,
-          text: modal.result
-        });
+        DayPilot.Http.ajax({
+          data: fields,
+          url: "schedule/addSchedule",
+          success: function (ajax) {
+            console.log(ajax);
+            var data = ajax.data;
+            var e = new DayPilot.Event({
+              start: args.start,
+              end: args.end,
+              id: data.id,
+              resource: args.resource,
+              text: username
+            });
+            sche.events.add(e);
+          },
+          error: function (ajax) {
+            console.log(userid);
+            console.log(ajax);
+            console.log(fields);
+          }
+        })
       });
     },
     onScroll: function (args){
-        DayPilot.Http.ajax({
-        url: "backend_events.php?start=" + start.toString() + "&end=" + end.toString(),
+      // args.async = true;
+      var start = args.viewport.start.addDays(-7);
+      var end = args.viewport.end.addDays(7);
+      DayPilot.Http.ajax({
+        url: "schedule/getAllSchedule",
         success: function (ajax) {
           args.events = ajax.data;
           args.loaded();
-        }
-      });
+          console.log(ajax.data);
+      }
+    });
     },
     eventMoveHandling: "Update",
     onEventMoved: function (args) {
-      this.message("Event moved: " + args.e.text());
+      DayPilot.Http.ajax({
+        url: "schedule/updateSchedule",
+        data: {
+          userid: userid,
+          id: args.e.id(),
+          newStart: args.newStart.toString(),
+          newEnd: args.newEnd.toString(),
+          newResource: args.newResource
+        },
+        success: function (ajax) {
+          sche.message("Moved.");
+          console.log(args.e.id());
+          console.log(ajax);
+        },
+        error: function (ajax) {
+            console.log(args.e.id());
+            console.log(ajax);
+        }
+      });
     },
     eventResizeHandling: "Update",
     onEventResized: function (args) {
-      this.message("Event resized: " + args.e.text());
+      DayPilot.Http.ajax({
+        url: "schedule/updateSchedule",
+        data: {
+          userid: userid,
+          id: args.e.id(),
+          newStart: args.newStart.toString(),
+          newEnd: args.newEnd.toString(),
+          newResource: args.e.data.resource
+        },
+        success: function (ajax) {
+          sche.message("Resized.");
+          console.log(args.e.id());
+          console.log(ajax);
+        },
+        error: function (ajax) {
+            console.log(args.e.id());
+            console.log(ajax);
+        }
+      });
     },
     eventDeleteHandling: "Update",
     onEventDeleted: function (args) {
-      this.message("Event deleted: " + args.e.text());
+      console.log(args.e.id());
+      DayPilot.Http.ajax({
+        url: "schedule/deleteSchedule",
+        data: {
+          id: args.e.id()
+        },
+        success: function (ajax) {
+          sche.message("Deleted.");
+          console.log(ajax);
+        }
+      });
     },
     eventClickHandling: "Disabled",
     eventHoverHandling: "Bubble",
@@ -72,17 +150,14 @@
     }),
     treeEnabled: true,
   });
-  sche.resources = [
-    {name: "Resource 1", id: "R1"},
-    {name: "Resource 2", id: "R2"},
-    {name: "Resource 3", id: "R3"},
-    {name: "Resource 4", id: "R4"},
-    {name: "Resource 5", id: "R5"},
-    {name: "Resource 6", id: "R6"},
-    {name: "Resource 7", id: "R7"},
-    {name: "Resource 8", id: "R8"},
-    {name: "Resource 9", id: "R9"},
-  ];
-  sche.events.list = [];
+  
   sche.init();
+  sche.onBeforeEventRender = function(args) {
+    if (args.data.text == "admin") {
+      args.data.backColor = "#ffebc0";
+    } else {
+      args.data.backColor = "Gray";
+    }
+  }
+  sche.rows.load("resources/getAllResource")
 </script>

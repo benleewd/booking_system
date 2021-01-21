@@ -23,7 +23,7 @@ class Filters extends BaseConfig
 			'usercheck',
 		],
 		'after'  => [
-			'toolbar',
+			//'toolbar',
 			//'honeypot'
 		],
 	];

@@ -31,39 +31,78 @@
       DayPilot.Modal.prompt("Create a new event:", "Event 1").then(function(modal) {
         sche.clearSelection();
         if (modal.canceled) { return; }
-        sche.events.add({
-          start: args.start,
-          end: args.end,
-          id: DayPilot.guid(),
-          resource: args.resource,
-          text: modal.result
-        });
+        DayPilot.Http.ajax({
+          data: {
+            start: args.start.toString(),
+            end: args.end.toString(),
+          },
+          url: "schedule/addSchedule",
+          success: function (ajax) {
+            var data = ajax.data;
+            var e = new DayPilot.Event({
+              start: args.start,
+              end: args.end,
+              id: data.id,
+              resource: args.resource,
+              text: document.getElementById('username')
+            });
+            event.add(e);
+          }
+        })
       });
     },
     onScroll: function (args){
-        var start = args.viewport.start;
-        var end = args.viewport.end;
-
-        DayPilot.Http.ajax({
-          url: ""
-        url: "backend_events.php?start=" + start.toString() + "&end=" + end.toString(),
+      args.async = true;
+      var start = args.viewport.start.addDays(-7);
+      var end = args.viewport.end.addDays(7);
+      DayPilot.Http.ajax({
+        url: "schedule/getAllSchedule",
         success: function (ajax) {
           args.events = ajax.data;
           args.loaded();
-        }
-      });
+      }
+    });
     },
     eventMoveHandling: "Update",
     onEventMoved: function (args) {
-      this.message("Event moved: " + args.e.text());
+      DayPilot.Http.ajax({
+        url: "schedule/updateSchedule",
+        data: {
+          id: args.e.id(),
+          newStart: args.newStart.toString(),
+          newEnd: args.newEnd.toString(),
+          newResource: args.newResource
+        },
+        success: function (ajax) {
+          this.message("Moved.");
+        }
+      });
     },
     eventResizeHandling: "Update",
     onEventResized: function (args) {
-      this.message("Event resized: " + args.e.text());
+      DayPilot.Http.ajax({
+        url: "schedule/updateSchedule",
+        data: {
+          id: args.e.id(),
+          newStart: args.newStart.toString(),
+          newEnd: args.newEnd.toString()
+        },
+        success: function (ajax) {
+          this.message("Resized.");
+        }
+      });
     },
     eventDeleteHandling: "Update",
     onEventDeleted: function (args) {
-      this.message("Event deleted: " + args.e.text());
+      DayPilot.Http.ajax({
+        url: "schedule/deleteSchedule",
+        data: {
+          id: args.e.id()
+        },
+        success: function (ajax) {
+          this.message("Deleted.");
+        }
+      });
     },
     eventClickHandling: "Disabled",
     eventHoverHandling: "Bubble",
@@ -76,17 +115,42 @@
     }),
     treeEnabled: true,
   });
-  sche.resources = [
-    {name: "Resource 1", id: "R1"},
-    {name: "Resource 2", id: "R2"},
-    {name: "Resource 3", id: "R3"},
-    {name: "Resource 4", id: "R4"},
-    {name: "Resource 5", id: "R5"},
-    {name: "Resource 6", id: "R6"},
-    {name: "Resource 7", id: "R7"},
-    {name: "Resource 8", id: "R8"},
-    {name: "Resource 9", id: "R9"},
-  ];
-  sche.events.list = [];
+  
   sche.init();
+  sche.scrollTo(DayPilot.Data.today());
+
+  loadResource();
+
+  function loadResource() {
+    var resources = [];
+    DayPilot.Http.ajax({
+      url: "resource/getAllGroups",
+      success: function (ajax) {
+        var data1 = JSON.parse(ajax.data);
+        data1.forEach(group => {
+          var gp = {};
+          gp.name = group.name;
+          gp.id = group.id;
+          DayPilot.Http.ajax({
+            url: "resource/getAllResource",
+            data: {
+              id: gp.id
+            },
+            success: function (ajax2) {
+              var data2 = JSON.parse(ajax2.data);
+              var children = [];
+              data2.forEach(resource => {
+                var r = {};
+                r.name = resource.name;
+                r.id = resource.id;
+                children.push(r);
+              });
+            }
+          });
+          resources.push(gp);
+        });
+      }
+    });
+    sche.rows.load(resources);
+  }
 </script>

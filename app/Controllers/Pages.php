@@ -5,12 +5,12 @@ class Pages extends BaseController
 	public function index()
 	{
 		echo view('templates/header');
-		// if (session()->get('isLogged')){
-		// 	echo view('pages/home');
-		// } else {
-		// 	echo view('login');
-		// }
-		echo view('pages/schedule');
+		if (session()->get('isLogged')){
+			echo view('pages/home');
+		} else {
+			echo view('login');
+		}
+		// echo view('pages/schedule');
 		echo view('templates/footer');
 		
 	}
