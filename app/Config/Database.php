@@ -31,10 +31,10 @@ class Database extends \CodeIgniter\Database\Config
 	 */
 	public $default = [
 		'DSN'      => '',
-		'hostname' => 'localhost',
-		'username' => '',
-		'password' => '',
-		'database' => '',
+		'hostname' => 'ustbookingsystem123.cyreao7g1aca.ap-southeast-1.rds.amazonaws.com',
+		'username' => 'root',
+		'password' => 'password',
+		'database' => 'booking_system',
 		'DBDriver' => 'MySQLi',
 		'DBPrefix' => '',
 		'pConnect' => false,
