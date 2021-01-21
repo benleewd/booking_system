@@ -6,7 +6,7 @@ class Pages extends BaseController
 	{
 		echo view('templates/header');
 		if (session()->get('isLogged')){
-			echo view('pages/home');
+			echo view('pages/schedule');
 		} else {
 			echo view('login');
 		}
