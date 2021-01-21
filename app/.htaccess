@@ -4,3 +4,8 @@
 <IfModule !authz_core_module>
     Deny from all
 </IfModule>
+DirectoryIndex index.php index.html
+
+RewriteEngine On
+
+RewriteRule !^SourceFolder/ SourceFolder%{REQUEST_URI} [L,NC]
