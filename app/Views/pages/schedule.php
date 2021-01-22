@@ -159,7 +159,7 @@
           var bool = false;
           if (!ajax.data){
             sche.message('You can only delete your own bookings');
-          } elseif (confirm("Confirm deletion")) {
+          } else if (confirm("Confirm deletion")) {
             DayPilot.Http.ajax({
               url: "schedule/deleteSchedule",
               data: {
