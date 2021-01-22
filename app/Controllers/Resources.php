@@ -8,13 +8,9 @@ class Resources extends BaseController
 {
 	protected $model;
 
-	public function core($func='load')
+	public function core($func)
 	{
 		switch ($func) {
-			case 'load':
-				$this->load();
-				break;
-			
 			case 'addResource':
 				return $this->addResource();
 				break;
@@ -40,15 +36,13 @@ class Resources extends BaseController
 				break;
 		} 
 	}
-	
-	public function load($table='resources')
-	{
-		$this->model = new CRUDModel();
-		$this->model->init($table);
-	}
 
 	public function addResource()
 	{
+		$db = db_connect();
+		$builder = $db->table("resources");
+		return json_encode($builder->where('id', $this->request->getVar('id'))->get()->getResultArray());
+
 		if ($this->request->getMethod() == 'post') {
 			$data = array(
 				'userid' => session()->get('id'),
@@ -76,7 +70,7 @@ class Resources extends BaseController
 	{
 		$db = db_connect();
 		$builder = $db->table("groups");
-		return json_encode($builder->where('id', 1)->get()->getResultArray());
+		return json_encode($builder->where('id', $this->request->getVar('id'))->get()->getResultArray());
 	}
 
 	public function getAllResource()
@@ -93,6 +87,7 @@ class Resources extends BaseController
 			$g = new Group();
 			$g->id = $group['gid'];
 			$g->name = $group['name'];
+			$g->expanded = true;
 			$builder1 = $db->table("resources");
 			// $builder1->where('gid', $g->id);
 			$resources = $builder1->where('gid', $g->id)->get()->getResultArray();

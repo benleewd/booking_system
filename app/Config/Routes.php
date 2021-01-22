@@ -37,7 +37,8 @@ $routes->match(['get', 'post'], 'groups/(:any)', 'Groups::core/$1');
 $routes->match(['get', 'post'], 'resources/(:any)', 'Resources::core/$1');
 $routes->get('logout', 'Users::logout', ['filter' => 'auth']);
 $routes->match(['get','post'],'login', 'Users::index', ['filter' => 'noauth']);
-$routes->match(['get','post'], 'register', 'Users::register');
+$routes->match(['get','post'], 'addnewuser', 'Users::register', ['filter' => 'adminauth']);
+$routes->get('/admin/(:any)', 'Admin::showme/$1', ['filter' => 'adminauth']);
 $routes->get('/(:any)', 'Pages::showme/$1', ['filter' => 'auth']);
 
 

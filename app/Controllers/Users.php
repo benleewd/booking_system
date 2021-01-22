@@ -67,7 +67,8 @@ class Users extends BaseController
 			$rules = [
 				'username' => 'required|min_length[5]|is_unique[users.username]',
 				'password' => 'required|min_length[8]|max_length[255]',
-				'password_confirm' => 'matches[password]'
+				'password_confirm' => 'matches[password]',
+				'access_level' => 'required'
 			];
 
 			if (!$this->validate($rules)) {
@@ -77,7 +78,8 @@ class Users extends BaseController
 
 				$newdata = [
 					'username' => $this->request->getVar('username'),
-					'password' => $this->request->getVar('password')
+					'password' => $this->request->getVar('password'),
+					'access' => $this->request->getVar('access_level')
 				];
 				$model->save($newdata);
 				$session = session();
@@ -90,7 +92,7 @@ class Users extends BaseController
 
 		echo view('templates/header', $data);
 
-		echo view('register');
+		echo view('admin/register');
 
 		echo view('templates/footer');
 	}

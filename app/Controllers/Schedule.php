@@ -18,13 +18,9 @@ class Schedule extends BaseController
 		echo view('templates/footer');
 	}
 
-	public function core($func='load')
+	public function core($func)
 	{
 		switch ($func) {
-			case 'load':
-				$this->load();
-				break;
-			
 			case 'addSchedule':
 				return $this->addSchedule();
 				break;
@@ -40,19 +36,17 @@ class Schedule extends BaseController
 			case 'deleteSchedule':
 				return $this->deleteSchedule();
 				break;
-
+			
+			case 'checkSchedule':
+				return $this->checkSchedule();
+				break;
+				
 			default:
 				return $this->test();
 				break;
 		} 
 	}
 	
-	public function load($table='schedule')
-	{
-		$this->model = new CRUDModel();
-		$this->model->init($table);
-	}
-
 	public function test()
 	{
 		return json_encode(session()->get());
@@ -80,30 +74,27 @@ class Schedule extends BaseController
 	{
 		$incData = $this->request->getJSON();
 		$data = array(
-			'id' => $incData->id,
 			'start' => $incData->newStart,
 			'end' => $incData->newEnd,
-			'resourceid' => $incData->newResource,
-			'userid' => $incData->userid
+			'resourceid' => $incData->newResource
 		);
 		$db = db_connect();
 		$builder = $db->table("schedule");
-		$result = $builder->replace($data);
-
+		$result = $builder->where('id', $incData->id)
+						  ->update($data);
+		
 		return json_encode($result);
 		
 	}
 
 	public function getAllSchedule()
 	{
-		// $this->load();
-		// return $this->model->read();
 		$db = db_connect();
 		$builder = $db->table("schedule");
-		$builder->select('schedule.id, resourceid, start, end, username');
-		$builder->join('users','users.id=schedule.userid');
+		$schedules = $builder->select('schedule.id, resourceid, start, end, username')
+							->join('users','users.id=schedule.userid')
+							->get()->getResultArray();
 		$output = array();
-		$schedules = $builder->get()->getResultArray();
 		foreach ($schedules as $schedule) {
 			$s = new Sche();
 			$s->id = $schedule['id'];
@@ -125,6 +116,33 @@ class Schedule extends BaseController
 
 		return json_encode($result);
 	}
+
+	public function checkSchedule()
+	{
+		$incData = $this->request->getJSON();
+		$userid = Intval($incData->userid);
+		$id = Intval($incData->id);
+		
+		$db = db_connect();
+		$builder = $db->table("schedule");
+		$result = $builder->select('userid')
+						  ->join('users', 'users.id=schedule.userid')
+						  ->where('schedule.id', $id)
+						  ->get()->getResultArray();
+
+		$builder1 = $db->table('users');
+		$access_level = $builder1->where('id', $userid)
+								 ->get()->getResultArray();
+
+		if (Intval($access_level[0]['access']) === 0)
+			return json_encode(true);
+		elseif (Intval($result[0]['userid']) === $userid)
+			return json_encode(true);
+		return json_encode(false);
+		
+		
+	}
+
 	//--------------------------------------------------------------------
 
 }

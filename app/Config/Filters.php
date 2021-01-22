@@ -13,6 +13,7 @@ class Filters extends BaseConfig
 		'auth' => \App\Filters\Auth::class,
 		'noauth' => \App\Filters\NoAuth::class,
 		'usercheck' => \App\Filters\UserCheck::class,
+		'adminauth' => \App\Filters\AdminAuth::class,
 	];
 
 	// Always applied before every request
@@ -20,7 +21,7 @@ class Filters extends BaseConfig
 		'before' => [
 			//'honeypot'
 			// 'csrf',
-			'usercheck',
+			//'usercheck',
 		],
 		'after'  => [
 			//'toolbar',

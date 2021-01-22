@@ -21,7 +21,7 @@ class App extends BaseConfig
 	| environments.
 	|
 	*/
-	public $baseURL = 'http://ustbookingsystem-env.eba-pbimdrd5.ap-southeast-1.elasticbeanstalk.com/';
+	public $baseURL = 'http://localhost/';
 
 	/*
 	|--------------------------------------------------------------------------

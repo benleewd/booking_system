@@ -6,13 +6,9 @@ class Groups extends BaseController
 {
 	protected $model;
 
-	public function core($func='load')
+	public function core($func)
 	{
 		switch ($func) {
-			case 'load':
-				$this->load();
-				break;
-			
 			case 'addGroups':
 				return $this->addGroups();
 				break;
@@ -35,12 +31,6 @@ class Groups extends BaseController
 		} 
 	}
 	
-	public function load($table='groups')
-	{
-		$this->model = new CRUDModel();
-		$this->model->init($table);
-	}
-
 	public function addGroups()
 	{
 		if ($this->request->getMethod() == 'post') {

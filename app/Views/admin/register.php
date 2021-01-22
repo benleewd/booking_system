@@ -9,7 +9,7 @@
                         <?php session()->get('success') ?>
                     </div>
                 <?php endif; ?>
-                <form action="/register" method="post">
+                <form action="/addnewuser" method="post">
                     <div class="form-group">
                         <label for="username">Username</label>
                         <input type="text" class="form-control" name="username" id="username">
@@ -21,6 +21,14 @@
                     <div class="form-group">
                         <label for="password_confirm">Confirm Password</label>
                         <input type="password" class="form-control" name="password_confirm" id="password_confirm" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="access_level">Choose user access level</label>
+                        <select class="form-control" id="access_level" name="access_level">
+                            <option value="" disabled selected>Select option</option>
+                            <option value="0" >Admin</option>
+                            <option value='1'>User</option>
+                        </select>
                     </div>
                     <hr>
                     <?php if (isset($validation)): ?>
